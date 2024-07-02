@@ -2,6 +2,7 @@ package br.com.matteusmoreno.EventFlow.event.controller;
 
 import br.com.matteusmoreno.EventFlow.event.entity.Event;
 import br.com.matteusmoreno.EventFlow.event.request.CreateEventRequestDto;
+import br.com.matteusmoreno.EventFlow.event.request.UpdateEventRequestDto;
 import br.com.matteusmoreno.EventFlow.event.respose.EventDetailsResponseDto;
 import br.com.matteusmoreno.EventFlow.event.service.EventService;
 import jakarta.validation.Valid;
@@ -35,6 +36,13 @@ public class EventController {
     @GetMapping("/details/{id}")
     public ResponseEntity<EventDetailsResponseDto> detailsById(@PathVariable UUID id) {
         Event event = eventService.detailEventById(id);
+
+        return ResponseEntity.ok(new EventDetailsResponseDto(event));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<EventDetailsResponseDto> update(@RequestBody @Valid UpdateEventRequestDto request) {
+        Event event = eventService.updateEvent(request);
 
         return ResponseEntity.ok(new EventDetailsResponseDto(event));
     }

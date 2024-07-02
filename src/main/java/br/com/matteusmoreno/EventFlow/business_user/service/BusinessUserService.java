@@ -7,6 +7,7 @@ import br.com.matteusmoreno.EventFlow.business_user.request.CreateBusinessUserRe
 import br.com.matteusmoreno.EventFlow.personal_user.request.UpdateBusinessUserRequestDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +19,13 @@ public class BusinessUserService {
 
     private final BusinessUserRepository businessUserRepository;
     private final AddressService addressService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public BusinessUserService(BusinessUserRepository businessUserRepository, AddressService addressService) {
+    public BusinessUserService(BusinessUserRepository businessUserRepository, AddressService addressService, BCryptPasswordEncoder passwordEncoder) {
         this.businessUserRepository = businessUserRepository;
         this.addressService = addressService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -30,6 +33,7 @@ public class BusinessUserService {
         BusinessUser businessUser = new BusinessUser();
         BeanUtils.copyProperties(request, businessUser);
 
+        businessUser.setPassword(passwordEncoder.encode(businessUser.getPassword()));
         businessUser.setAddress(addressService.createAddress(request.zipcode()));
         businessUser.setCreatedAt(LocalDateTime.now());
         businessUser.setActive(true);

@@ -7,6 +7,7 @@ import br.com.matteusmoreno.EventFlow.personal_user.request.CreatePersonalUserRe
 import br.com.matteusmoreno.EventFlow.personal_user.request.UpdatePersonalUserRequestDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +19,13 @@ public class PersonalUserService {
 
     private final PersonalUserRepository personalUserRepository;
     private final AddressService addressService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public PersonalUserService(PersonalUserRepository personalUserRepository, AddressService addressService) {
+    public PersonalUserService(PersonalUserRepository personalUserRepository, AddressService addressService, BCryptPasswordEncoder passwordEncoder) {
         this.personalUserRepository = personalUserRepository;
         this.addressService = addressService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -31,6 +34,7 @@ public class PersonalUserService {
         BeanUtils.copyProperties(request, personalUser);
 
         personalUser.setAddress(addressService.createAddress(request.zipcode()));
+        personalUser.setPassword(passwordEncoder.encode(personalUser.getPassword()));
 
         personalUser.setCreatedAt(LocalDateTime.now());
         personalUser.setActive(true);

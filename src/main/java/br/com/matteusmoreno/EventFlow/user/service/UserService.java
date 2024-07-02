@@ -1,11 +1,14 @@
 package br.com.matteusmoreno.EventFlow.user.service;
 
 import br.com.matteusmoreno.EventFlow.address.service.AddressService;
+import br.com.matteusmoreno.EventFlow.role.Role;
 import br.com.matteusmoreno.EventFlow.role.RoleRepository;
 import br.com.matteusmoreno.EventFlow.user.entity.User;
 import br.com.matteusmoreno.EventFlow.user.repository.UserRepository;
 import br.com.matteusmoreno.EventFlow.user.request.CreateUserRequestDto;
 import br.com.matteusmoreno.EventFlow.user.request.UpdateUserRequestDto;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,9 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -77,6 +83,22 @@ public class UserService {
             user.setEmail(request.email());
         }
 
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return user;
+    }
+
+    @Transactional
+    public User addBusinessRole(UUID id) {
+        User user = userRepository.findById(id).orElseThrow();
+        verifyAuthenticatedUser(user);
+
+        if (user.getRoles().contains(roleRepository.findByName("BUSINESS"))) {
+            throw new IllegalStateException("User already has business role");
+        }
+
+        user.getRoles().add(roleRepository.findByName("BUSINESS"));
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 

@@ -47,6 +47,13 @@ public class UserController {
         return ResponseEntity.ok(new UserDetailsResponseDto(user));
     }
 
+    @PatchMapping("/add-business-role/{id}")
+    public ResponseEntity<UserDetailsResponseDto> addBusinessRole(@PathVariable UUID id) {
+        User user = userService.addBusinessRole(id);
+
+        return ResponseEntity.ok(new UserDetailsResponseDto(user));
+    }
+
     @DeleteMapping("/disable/{id}")
     public ResponseEntity<Void> disable(@PathVariable UUID id) {
         userService.disableUser(id);

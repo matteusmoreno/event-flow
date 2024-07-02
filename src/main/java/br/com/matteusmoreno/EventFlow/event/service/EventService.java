@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class EventService {
@@ -35,5 +36,9 @@ public class EventService {
         eventRepository.save(event);
 
         return event;
+    }
+
+    public Event detailEventById(UUID id) {
+        return eventRepository.findById(id).orElseThrow();
     }
 }

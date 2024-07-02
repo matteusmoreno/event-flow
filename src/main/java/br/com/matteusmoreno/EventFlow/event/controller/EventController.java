@@ -7,13 +7,11 @@ import br.com.matteusmoreno.EventFlow.event.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -32,5 +30,12 @@ public class EventController {
         URI uri = uriBuilder.path("/events/create/{id}").buildAndExpand(event.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new EventDetailsResponseDto(event));
+    }
+
+    @GetMapping("/details/{id}")
+    public ResponseEntity<EventDetailsResponseDto> detailsById(@PathVariable UUID id) {
+        Event event = eventService.detailEventById(id);
+
+        return ResponseEntity.ok(new EventDetailsResponseDto(event));
     }
 }

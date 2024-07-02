@@ -71,4 +71,22 @@ public class EventService {
 
         return event;
     }
+
+    @Transactional
+    public void disableEvent(UUID id) {
+        Event event = eventRepository.findById(id).orElseThrow();
+        event.setDeletedAt(LocalDateTime.now());
+        event.setActive(false);
+        eventRepository.save(event);
+    }
+
+    @Transactional
+    public Event enableEvent(UUID id) {
+        Event event = eventRepository.findById(id).orElseThrow();
+        event.setDeletedAt(null);
+        event.setActive(true);
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+        return event;
+    }
 }

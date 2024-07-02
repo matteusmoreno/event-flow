@@ -46,4 +46,18 @@ public class EventController {
 
         return ResponseEntity.ok(new EventDetailsResponseDto(event));
     }
+
+    @DeleteMapping("/disable/{id}")
+    public ResponseEntity<Void> disable(@PathVariable UUID id) {
+        eventService.disableEvent(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/enable/{id}")
+    public ResponseEntity<EventDetailsResponseDto> enable(@PathVariable UUID id) {
+        Event event = eventService.enableEvent(id);
+
+        return ResponseEntity.ok(new EventDetailsResponseDto(event));
+    }
 }

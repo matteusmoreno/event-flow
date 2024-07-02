@@ -74,13 +74,12 @@ public class PersonalUserService {
     }
 
     @Transactional
-    public PersonalUser disablePersonalUser(UUID id) {
+    public void disablePersonalUser(UUID id) {
         PersonalUser personalUser = personalUserRepository.findById(id).orElseThrow();
         personalUser.setActive(false);
         personalUser.setDeletedAt(LocalDateTime.now());
         personalUserRepository.save(personalUser);
 
-        return personalUser;
     }
 
     @Transactional

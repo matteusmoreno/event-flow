@@ -70,5 +70,22 @@ public class BusinessUserService {
         return businessUser;
     }
 
+    @Transactional
+    public void disableBusinessUser(UUID id) {
+        BusinessUser businessUser = businessUserRepository.findById(id).orElseThrow();
+        businessUser.setActive(false);
+        businessUser.setDeletedAt(LocalDateTime.now());
+        businessUserRepository.save(businessUser);
+    }
 
+    @Transactional
+    public BusinessUser enableBusinessUser(UUID id) {
+        BusinessUser businessUser = businessUserRepository.findById(id).orElseThrow();
+        businessUser.setActive(true);
+        businessUser.setDeletedAt(null);
+        businessUser.setUpdatedAt(LocalDateTime.now());
+        businessUserRepository.save(businessUser);
+
+        return businessUser;
+    }
 }

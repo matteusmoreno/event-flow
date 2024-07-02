@@ -46,4 +46,18 @@ public class BusinessUserController {
 
         return ResponseEntity.ok(new BusinessUserDetailsResponseDto(businessUser));
     }
+
+    @DeleteMapping("/disable/{id}")
+    public ResponseEntity<Void> disable(@PathVariable UUID id) {
+        businessUserService.disableBusinessUser(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/enable/{id}")
+    public ResponseEntity<BusinessUserDetailsResponseDto> enable(@PathVariable UUID id) {
+        BusinessUser businessUser = businessUserService.enableBusinessUser(id);
+
+        return ResponseEntity.ok(new BusinessUserDetailsResponseDto(businessUser));
+    }
 }

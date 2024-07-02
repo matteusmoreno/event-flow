@@ -1,5 +1,7 @@
-package br.com.matteusmoreno.EventFlow.login;
+package br.com.matteusmoreno.EventFlow.login.service;
 
+import br.com.matteusmoreno.EventFlow.login.request.LoginRequestDto;
+import br.com.matteusmoreno.EventFlow.role.Role;
 import br.com.matteusmoreno.EventFlow.user.entity.User;
 import br.com.matteusmoreno.EventFlow.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 @Service
 public class LoginService {
@@ -33,15 +36,20 @@ public class LoginService {
         User user = userRepository.findByEmail(request.email());
 
         if (!userRepository.existsByEmail(request.email()) || isLoginCorrect(request, passwordEncoder, user)) {
-            throw new BadCredentialsException("user or password is invalid!");
+            throw new BadCredentialsException("User or Password is invalid!");
         }
 
-        var claims = JwtClaimsSet.builder()
+        var roles = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.joining(" "));
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("EventFlow")
                 .subject(user.getEmail())
                 .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(300L))
-                .claim("roles", "personal_user")
+                .expiresAt(Instant.now().plusSeconds(600L))
+                .claim("roles", roles)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

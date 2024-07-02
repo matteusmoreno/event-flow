@@ -46,4 +46,11 @@ public class PersonalUserController {
 
         return ResponseEntity.ok(new PersonalCustomerDetailsResponseDto(personalUser));
     }
+
+    @DeleteMapping("/disable/{id}")
+    public ResponseEntity<Void> disable(@PathVariable UUID id) {
+        personalUserService.disablePersonalUser(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

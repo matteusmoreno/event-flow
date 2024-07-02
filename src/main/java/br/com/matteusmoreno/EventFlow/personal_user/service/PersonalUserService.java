@@ -1,6 +1,5 @@
 package br.com.matteusmoreno.EventFlow.personal_user.service;
 
-import br.com.matteusmoreno.EventFlow.address.repository.AddressRepository;
 import br.com.matteusmoreno.EventFlow.address.service.AddressService;
 import br.com.matteusmoreno.EventFlow.personal_user.entity.PersonalUser;
 import br.com.matteusmoreno.EventFlow.personal_user.repository.PersonalUserRepository;
@@ -19,13 +18,11 @@ public class PersonalUserService {
 
     private final PersonalUserRepository personalUserRepository;
     private final AddressService addressService;
-    private final AddressRepository addressRepository;
 
     @Autowired
-    public PersonalUserService(PersonalUserRepository personalUserRepository, AddressService addressService, AddressRepository addressRepository) {
+    public PersonalUserService(PersonalUserRepository personalUserRepository, AddressService addressService) {
         this.personalUserRepository = personalUserRepository;
         this.addressService = addressService;
-        this.addressRepository = addressRepository;
     }
 
     @Transactional
@@ -33,7 +30,7 @@ public class PersonalUserService {
         PersonalUser personalUser = new PersonalUser();
         BeanUtils.copyProperties(request, personalUser);
 
-        setAddressAttributes(request.zipcode(), personalUser);
+        personalUser.setAddress(addressService.createAddress(request.zipcode()));
 
         personalUser.setCreatedAt(LocalDateTime.now());
         personalUser.setActive(true);
@@ -61,7 +58,7 @@ public class PersonalUserService {
             personalUser.setPhone(request.phone());
         }
         if (request.zipcode() != null) {
-            setAddressAttributes(request.zipcode(), personalUser);
+            personalUser.setAddress(addressService.createAddress(request.zipcode()));
         }
         if (request.email() != null) {
             personalUser.setEmail(request.email());
@@ -91,13 +88,5 @@ public class PersonalUserService {
         personalUserRepository.save(personalUser);
 
         return personalUser;
-    }
-
-    private void setAddressAttributes(String zipcode, PersonalUser personalUser) {
-        if (addressRepository.existsByZipcode(zipcode)) {
-            personalUser.setAddress(addressRepository.findByZipcode(zipcode));
-        } else {
-            personalUser.setAddress(addressService.createAddress(zipcode));
-        }
     }
 }

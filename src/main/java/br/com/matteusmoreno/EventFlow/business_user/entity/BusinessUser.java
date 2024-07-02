@@ -1,4 +1,4 @@
-package br.com.matteusmoreno.EventFlow.business_user;
+package br.com.matteusmoreno.EventFlow.business_user.entity;
 
 import br.com.matteusmoreno.EventFlow.address.entity.Address;
 import jakarta.persistence.*;

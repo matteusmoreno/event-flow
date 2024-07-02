@@ -22,13 +22,15 @@ public class AddressService {
         this.addressMapper = addressMapper;
         this.addressRepository = addressRepository;
     }
-
     @Transactional
     public Address createAddress(String zipcode) {
-        AddressResponseDto response = viaCepClient.getAddressByCep(zipcode);
-        Address address = addressMapper.toEntity(response);
-        addressRepository.save(address);
-
-        return address;
+        if (addressRepository.existsByZipcode(zipcode)) {
+            return addressRepository.findByZipcode(zipcode);
+        } else {
+            AddressResponseDto response = viaCepClient.getAddressByCep(zipcode);
+            Address address = addressMapper.toEntity(response);
+            addressRepository.save(address);
+            return address;
+        }
     }
 }

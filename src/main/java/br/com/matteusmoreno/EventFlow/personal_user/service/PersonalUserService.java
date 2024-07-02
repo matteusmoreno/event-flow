@@ -83,6 +83,17 @@ public class PersonalUserService {
         return personalUser;
     }
 
+    @Transactional
+    public PersonalUser enablePersonalUser(UUID id) {
+        PersonalUser personalUser = personalUserRepository.findById(id).orElseThrow();
+        personalUser.setActive(true);
+        personalUser.setDeletedAt(null);
+        personalUser.setUpdatedAt(LocalDateTime.now());
+        personalUserRepository.save(personalUser);
+
+        return personalUser;
+    }
+
     private void setAddressAttributes(String zipcode, PersonalUser personalUser) {
         if (addressRepository.existsByZipcode(zipcode)) {
             personalUser.setAddress(addressRepository.findByZipcode(zipcode));

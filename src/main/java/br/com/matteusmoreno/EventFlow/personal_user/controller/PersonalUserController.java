@@ -53,4 +53,11 @@ public class PersonalUserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/enable/{id}")
+    public ResponseEntity<PersonalCustomerDetailsResponseDto> enable(@PathVariable UUID id) {
+        PersonalUser personalUser = personalUserService.enablePersonalUser(id);
+
+        return ResponseEntity.ok(new PersonalCustomerDetailsResponseDto(personalUser));
+    }
 }

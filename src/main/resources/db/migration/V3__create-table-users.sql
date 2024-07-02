@@ -1,4 +1,4 @@
-CREATE TABLE personal_users (
+CREATE TABLE users (
     id BINARY(16) PRIMARY KEY NOT NULL UNIQUE,
     name VARCHAR(255) NOT NULL,
     birth_date DATE NOT NULL,

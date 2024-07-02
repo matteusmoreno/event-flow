@@ -1,20 +1,23 @@
-package br.com.matteusmoreno.EventFlow.personal_user.entity;
+package br.com.matteusmoreno.EventFlow.user.entity;
 
 import br.com.matteusmoreno.EventFlow.address.entity.Address;
+import br.com.matteusmoreno.EventFlow.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "personal_users")
+@Table(name = "users")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
-public class PersonalUser {
+public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -29,4 +32,10 @@ public class PersonalUser {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
     private Boolean active;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles = new ArrayList<>();
 }

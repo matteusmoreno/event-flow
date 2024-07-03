@@ -7,6 +7,7 @@ import br.com.matteusmoreno.EventFlow.event.request.CreateEventRequestDto;
 import br.com.matteusmoreno.EventFlow.event.request.UpdateEventRequestDto;
 import br.com.matteusmoreno.EventFlow.user.entity.User;
 import br.com.matteusmoreno.EventFlow.user.repository.UserRepository;
+import br.com.matteusmoreno.EventFlow.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +27,19 @@ public class EventService{
 
     private final EventRepository eventRepository;
     private final AddressService addressService;
-    private final UserRepository userRepository;
+    private final AppUtils appUtils;
 
     @Autowired
-    public EventService(EventRepository eventRepository, AddressService addressService, UserRepository userRepository) {
+    public EventService(EventRepository eventRepository, AddressService addressService, AppUtils appUtils) {
         this.eventRepository = eventRepository;
         this.addressService = addressService;
-        this.userRepository = userRepository;
+        this.appUtils = appUtils;
     }
 
     @Transactional
     public Event createEvent(CreateEventRequestDto request) {
         Event event = new Event();
-        User user = getAuthenticatedUser();
+        User user = appUtils.getAuthenticatedUser();
 
         BeanUtils.copyProperties(request, event);
 
@@ -56,7 +57,7 @@ public class EventService{
     public Event detailEventById(UUID id) {
         Event event = eventRepository.findById(id).orElseThrow();
 
-        log.info("User {} detail event {}", getAuthenticatedUser().getName(), event.getName());
+        log.info("User {} detail event {}", appUtils.getAuthenticatedUser().getName(), event.getName());
         return event;
     }
 
@@ -120,12 +121,6 @@ public class EventService{
         log.info("User {} enabled event {}", event.getUser().getName(), event.getName());
         return event;
     }
-
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByEmail(authentication.getName());
-    }
-
 
     private void verifyAuthenticatedUser(Event event) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -6,6 +6,7 @@ import br.com.matteusmoreno.EventFlow.user.entity.User;
 import br.com.matteusmoreno.EventFlow.user.repository.UserRepository;
 import br.com.matteusmoreno.EventFlow.user.request.CreateUserRequestDto;
 import br.com.matteusmoreno.EventFlow.user.request.UpdateUserRequestDto;
+import br.com.matteusmoreno.EventFlow.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,15 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final AddressService addressService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AppUtils appUtils;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, AddressService addressService, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, AddressService addressService, BCryptPasswordEncoder passwordEncoder, AppUtils appUtils) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.addressService = addressService;
         this.passwordEncoder = passwordEncoder;
+        this.appUtils = appUtils;
     }
 
     @Transactional
@@ -55,7 +58,7 @@ public class UserService {
 
     public User detailUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
-        verifyAuthenticatedUser(user);
+        appUtils.verifyAuthenticatedUser(user);
 
         log.info("User details requested: {}", user.getName());
         return user;
@@ -64,7 +67,7 @@ public class UserService {
     @Transactional
     public User updateUser(UpdateUserRequestDto request) {
         User user = userRepository.findById(request.id()).orElseThrow();
-        verifyAuthenticatedUser(user);
+        appUtils.verifyAuthenticatedUser(user);
 
         if (request.name() != null) {
             user.setName(request.name());
@@ -96,7 +99,7 @@ public class UserService {
     @Transactional
     public User addBusinessRole(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
-        verifyAuthenticatedUser(user);
+        appUtils.verifyAuthenticatedUser(user);
 
         if (user.getRoles().contains(roleRepository.findByName("BUSINESS"))) {
             throw new IllegalStateException("User already has business role");
@@ -113,7 +116,7 @@ public class UserService {
     @Transactional
     public void disableUser(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
-        verifyAuthenticatedUser(user);
+        appUtils.verifyAuthenticatedUser(user);
         user.setActive(false);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -125,7 +128,7 @@ public class UserService {
     @Transactional
     public User enableUser(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
-        verifyAuthenticatedUser(user);
+        appUtils.verifyAuthenticatedUser(user);
         user.setActive(true);
         user.setDeletedAt(null);
         user.setUpdatedAt(LocalDateTime.now());
@@ -135,12 +138,6 @@ public class UserService {
         return user;
     }
 
-    private static void verifyAuthenticatedUser(User user) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.getName().equals(user.getEmail())) {
-            log.error("User {} tried to access user {}", authentication.getName(), user.getEmail());
-            throw new BadCredentialsException("You can't access this user");
-        }
-    }
+
 
 }

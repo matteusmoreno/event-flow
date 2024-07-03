@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.EventFlow.event.entity;
 
 import br.com.matteusmoreno.EventFlow.address.entity.Address;
+import br.com.matteusmoreno.EventFlow.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,4 +32,6 @@ public class Event {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
     private Boolean active;
+    @ManyToOne
+    private User user;
 }

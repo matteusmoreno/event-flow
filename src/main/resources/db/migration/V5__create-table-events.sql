@@ -10,6 +10,8 @@ CREATE TABLE events (
     updated_at DATETIME,
     deleted_at DATETIME,
     active BOOLEAN NOT NULL,
+    user_id BINARY(16) NOT NULL,
 
-    FOREIGN KEY (address_id) REFERENCES addresses(id)
+    FOREIGN KEY (address_id) REFERENCES addresses(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

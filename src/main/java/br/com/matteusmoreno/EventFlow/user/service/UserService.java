@@ -1,14 +1,12 @@
 package br.com.matteusmoreno.EventFlow.user.service;
 
 import br.com.matteusmoreno.EventFlow.address.service.AddressService;
-import br.com.matteusmoreno.EventFlow.role.Role;
 import br.com.matteusmoreno.EventFlow.role.RoleRepository;
 import br.com.matteusmoreno.EventFlow.user.entity.User;
 import br.com.matteusmoreno.EventFlow.user.repository.UserRepository;
 import br.com.matteusmoreno.EventFlow.user.request.CreateUserRequestDto;
 import br.com.matteusmoreno.EventFlow.user.request.UpdateUserRequestDto;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,8 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -53,12 +49,15 @@ public class UserService {
         user.setActive(true);
         userRepository.save(user);
 
+        log.info("User created with success: {}", user.getName());
         return user;
     }
 
     public User detailUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow();
         verifyAuthenticatedUser(user);
+
+        log.info("User details requested: {}", user.getName());
         return user;
     }
 
@@ -69,18 +68,23 @@ public class UserService {
 
         if (request.name() != null) {
             user.setName(request.name());
+            log.info("User {} updated name from {} to {}", user.getName(), user.getName(), request.name());
         }
         if (request.birthDate() != null) {
             user.setBirthDate(request.birthDate());
+            log.info("User {} updated birthDate from {} to {}", user.getName(), user.getBirthDate(), request.birthDate());
         }
         if (request.phone() != null) {
             user.setPhone(request.phone());
+            log.info("User {} updated phone from {} to {}", user.getName(), user.getPhone(), request.phone());
         }
         if (request.zipcode() != null) {
             user.setAddress(addressService.createAddress(request.zipcode()));
+            log.info("User {} updated zipcode from {} to {}", user.getName(), user.getAddress().getZipcode(), request.zipcode());
         }
         if (request.email() != null) {
             user.setEmail(request.email());
+            log.info("User {} updated email from {} to {}", user.getName(), user.getEmail(), request.email());
         }
 
         user.setUpdatedAt(LocalDateTime.now());
@@ -102,6 +106,7 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
+        log.info("User {} added business role", user.getName());
         return user;
     }
 
@@ -112,6 +117,8 @@ public class UserService {
         user.setActive(false);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+
+        log.info("User {} disabled", user.getName());
 
     }
 
@@ -124,13 +131,14 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
+        log.info("User {} enabled", user.getName());
         return user;
     }
-
 
     private static void verifyAuthenticatedUser(User user) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!authentication.getName().equals(user.getEmail())) {
+            log.error("User {} tried to access user {}", authentication.getName(), user.getEmail());
             throw new BadCredentialsException("You can't access this user");
         }
     }

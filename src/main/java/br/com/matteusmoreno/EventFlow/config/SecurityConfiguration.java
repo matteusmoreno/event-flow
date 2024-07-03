@@ -23,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -38,6 +39,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/users/create").permitAll()
+                        .requestMatchers( "/events/create").hasAnyAuthority("SCOPE_ADMIN", "SCOPE_BUSINESS")
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
@@ -63,3 +65,4 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 }
+

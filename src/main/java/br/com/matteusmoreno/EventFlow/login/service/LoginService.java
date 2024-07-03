@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,17 +40,14 @@ public class LoginService {
             throw new BadCredentialsException("User or Password is invalid!");
         }
 
-        var roles = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(Collectors.joining(" "));
-
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("EventFlow")
                 .subject(user.getEmail())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(600L))
-                .claim("roles", roles)
+                .claim("scope", setScopes(user))
+                .claim("userId", user.getId())
+                .claim("name", user.getName())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
@@ -57,5 +55,12 @@ public class LoginService {
 
     private boolean isLoginCorrect(LoginRequestDto request, PasswordEncoder passwordEncoder, User user) {
         return !passwordEncoder.matches(request.password(), user.getPassword());
+    }
+
+    private List<String> setScopes(User user) {
+        return user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
     }
 }
